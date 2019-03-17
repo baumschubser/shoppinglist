@@ -1,0 +1,169 @@
+<html lang="en">
+	<head>
+		<title>Shopping List</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"></script>
+		<script src="https://rickharrison.github.io/validate.js/validate.min.js"></script>
+		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.min.css" />
+		
+		<meta charset="utf-8">
+		<link rel="manifest" href="manifest.json">
+		<link rel="icon" sizes="192x192" href="logo-192.png">
+		<meta name="viewport" content="width=device-width">
+		<meta name="mobile-web-app-capable" content="yes">
+		
+		<style>
+			#shoppinglist li {
+				display: block;
+				margin-bottom: 10px;
+			}
+			#newItemText {
+				width: 100%;
+			}
+			#gearButton {
+				position: fixed;
+				bottom: 10px;
+				right: 10px;
+			}
+		</style>
+	</head>
+	<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 offset-md-3 col-sm-12">
+				<h1 class="text-center">Shopping List</h1>
+				<ul id="shoppinglist" class="list-unstyled">
+					<li id="newItemList">
+						<form name="newItemForm">
+							<div class="form-group">
+								<div class="container">
+									<div class="row">
+										<div class="col-7">
+											<input type="text" name="newItemText" id="newItemText" value="">
+										</div>
+										<div class="col-5">
+											<button id="addButton" class="btn btn-primary" type="submit">Add Item <span class="octicon octicon-cloud-upload"></span></button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Modal settings dialog -->
+	<button id="gearButton" type="button" class="btn btn-primary" data-toggle="modal" data-target="#settingsModal">
+	  <span class="octicon octicon-gear"></span>
+	</button>
+
+	<!-- Modal -->
+	<div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+		    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+		    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		      <span aria-hidden="true">&times;</span>
+		    </button>
+		  </div>
+ 		  <form name="settings">
+			  <div class="modal-body">
+			  	<div id="warn"</div>
+					Server URL:
+					<input type="text" name="serverUrlSettings" id="serverUrlSettings" value="">
+			  </div>
+			  <div class="modal-footer">
+				<button id="settingsCloseButton" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button id="setServerUrl" class="btn btn-primary" type="submit">Save</button>
+			  </div>
+		  </form>
+		</div>
+	  </div>
+	</div>
+	
+	<script>
+		var server = getServerUrl();
+		$('#serverUrlSettings').val(server);
+
+		// Add new item validation
+		var settingsFormValidator = new FormValidator('newItemForm', [{
+			name: 'newItemText',
+			display: 'Item text',
+			rules: 'required'
+		}], function (errors, event) {
+		    if (errors.length > 0)
+				errors.forEach(function (error) { warn(error.message); });
+			else {
+				addItem();
+			}
+			event.preventDefault();
+		});
+		
+		// Settings validation
+		var newItemFormValidator = new FormValidator('settings', [{
+			name: 'serverUrlSettings',
+			display: 'Server URL',
+			rules: 'required|valid_url'
+		}], function (errors, event) {
+		    if (errors.length > 0)
+				errors.forEach(function (error) { warnSettings(error.message); });
+			else {
+				Cookies.set('serverUrl', $('#serverUrlSettings').val());
+				server = $('#serverUrlSettings').val();
+				$('#settingsCloseButton').click();
+			}
+			event.preventDefault();
+		});
+		
+		$.getJSON(server + '/shoppinglist', null, function(data, status, jqXHR) {
+			if (status != "success") return;
+			data.forEach(function (item) {
+				$('#newItemList').before('<li class="btn btn-outline-secondary" id="' + item.id + '" onclick="delItem(' + item.id + ')">' + item.text + '</li>');
+			});			
+		});
+		
+		function addItem() {
+			var text = $("#newItemText").val();
+			$.post(server + '/create', { text: text}, function (data, status, jqXHR) {
+				if (status != "success") {
+					warn("Error creating item: " + data);
+					return;
+				}
+				$('#newItemList').
+					before($('<li class="btn btn-outline-secondary" id="' + data + '" onclick="delItem(' + data + ')">' + text + '</li>').hide().fadeIn(1000));
+				$('#newItemText').val('');
+			});
+		}
+		
+		function delItem(itemId) {
+			$.post(server + '/delete', { id: itemId}, function (data, status, jqXHR) {
+				if (status != "success") {
+					warn("Error deleting item: " + data);
+					return;
+				}
+			});
+			var item = $('#' + itemId)[0];
+			$(item).fadeOut();
+		}
+		
+		function getServerUrl() {
+			var url = Cookies.get('serverUrl');
+			if (url == null) url = '';			
+			return url.replace(/\/+$/, ""); //no trailing slashes
+		}
+		
+		function warn(msg) {
+			$('#newItemList').before('<li><div class="alert alert-secondary alert-dismissible fade show" role="alert">' + msg + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div></li>').alert();
+		}
+		
+		function warnSettings(msg) {
+			$('#warn').before('<div class="alert alert-secondary alert-dismissible fade show" role="alert">' + msg + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>').alert();
+		}
+	</script>
+	</body>
+</html>

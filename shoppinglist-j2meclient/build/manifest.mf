@@ -1,0 +1,7 @@
+MIDlet-1: ShoppingList,,hello.HelloMIDlet
+MIDlet-Permissions: javax.microedition.io.Connector.http, javax.microedition.io.Connector.https
+MIDlet-Vendor: Matthias Clausen
+MIDlet-Name: Shopping List
+MIDlet-Version: 1.2
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.1

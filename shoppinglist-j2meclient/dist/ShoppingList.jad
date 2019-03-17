@@ -1,0 +1,9 @@
+MIDlet-1: ShoppingList,,hello.HelloMIDlet
+MIDlet-Jar-Size: 70861
+MIDlet-Jar-URL: ShoppingList.jar
+MIDlet-Name: Shopping List
+MIDlet-Permissions: javax.microedition.io.Connector.http, javax.microedition.io.Connector.https
+MIDlet-Vendor: Matthias Clausen
+MIDlet-Version: 1.2
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.1

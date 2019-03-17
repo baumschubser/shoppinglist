@@ -10,7 +10,7 @@ The webclient:
 
 The J2ME client:
 
-![Image of the J2ME client in Symbian](j2meclient.png)
+![Image of the J2ME client in Symbian](j2meclient.jpg)
 
 
 ## Installation

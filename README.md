@@ -5,7 +5,13 @@ It has no password restrictions or anything like that. I just needed an online s
 
 ## Screenshots
 The webclient:
+
 ![Image of the webclient in Firefox](webclient.png)
+
+The J2ME client:
+
+![Image of the J2ME client in Symbian](j2meclient.png)
+
 
 ## Installation
 ### Server part
@@ -22,5 +28,9 @@ The webclient:
 
 ### J2ME part
 
-* Transfer the .jar file somehow to your phone and install it.
+* Transfer the .jar file from the folder shoppinglist-j2meclient somehow to your phone and install it.
 * Open the application. It should ask you for the server URL on first start. You can change that later.
+
+## Develop
+
+In the folder shoppinglist-j2meclient, you will find a NetBeans 6.5.1 project.

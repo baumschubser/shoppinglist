@@ -5,7 +5,7 @@ It has no password restrictions or anything like that. I just needed an online s
 
 ## Screenshots
 The webclient:
-
+![Image of the webclient in Firefox](webclient.png)
 
 ## Installation
 ### Server part
